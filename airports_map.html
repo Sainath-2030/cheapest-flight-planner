@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Airports Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #mapid { height: 90vh; width: 100%; }
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    .topbar { padding: 8px; background: #f8f9fa; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>Airports Map</strong> — Click a marker to see its <em>id: name</em>.
+    <span style="margin-left:20px">Use the <code>id</code> or exact name in the console to choose source/destination.</span>
+  </div>
+  <div id="mapid"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('mapid').setView([21.22337, 78.07621], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.marker([19.0896, 72.8656]).addTo(map).bindPopup('0: Mumbai');L.marker([28.5562, 77.1]).addTo(map).bindPopup('1: Delhi');L.marker([12.953, 77.6683]).addTo(map).bindPopup('2: Bengaluru');L.marker([12.9941, 80.1709]).addTo(map).bindPopup('3: Chennai');L.marker([22.654, 88.4467]).addTo(map).bindPopup('4: Kolkata');L.marker([17.2403, 78.4294]).addTo(map).bindPopup('5: Hyderabad');L.marker([18.5793, 73.9143]).addTo(map).bindPopup('6: Pune');L.marker([23.0772, 72.6347]).addTo(map).bindPopup('7: Ahmedabad');L.marker([21.1161, 72.7411]).addTo(map).bindPopup('8: Surat');L.marker([26.8248, 75.8058]).addTo(map).bindPopup('9: Jaipur');L.marker([26.7606, 80.8893]).addTo(map).bindPopup('10: Lucknow');L.marker([21.089, 79.0488]).addTo(map).bindPopup('11: Nagpur');L.marker([22.7236, 75.8256]).addTo(map).bindPopup('12: Indore');L.marker([23.287, 77.3375]).addTo(map).bindPopup('13: Bhopal');L.marker([25.61, 85.1414]).addTo(map).bindPopup('14: Patna');L.marker([22.3072, 73.1812]).addTo(map).bindPopup('15: Vadodara');L.marker([26.1063, 91.585]).addTo(map).bindPopup('16: Guwahati');L.marker([33.9871, 74.7748]).addTo(map).bindPopup('17: Srinagar');L.marker([8.4824, 76.9204]).addTo(map).bindPopup('18: Thiruvananthapuram');L.marker([11.0296, 77.0434]).addTo(map).bindPopup('19: Coimbatore');
+
+    // Add small legend showing number of airports
+    var info = L.control({position: 'topright'});
+    info.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'info');
+        div.innerHTML = '<b>20 airports</b><br>IDs shown in popups';
+        div.style.background = 'white';
+        div.style.padding = '6px';
+        div.style.border = '1px solid #ccc';
+        return div;
+    };
+    info.addTo(map);
+  </script>
+</body>
+</html>

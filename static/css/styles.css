@@ -1,0 +1,11 @@
+/* static/css/styles.css */
+body { margin:0; font-family: Inter, Arial, sans-serif; color:#222; background:#f7f9fb; }
+.topbar { background: linear-gradient(90deg,#0b79d0,#4ab3f4); color:white; padding:14px 18px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+.topbar h1 { margin:0; font-size:20px; }
+.subtitle { margin:0; opacity:0.95; font-size:13px; }
+#mapid { height: calc(100vh - 72px); }
+.panel { padding:12px; background:#fff; }
+table { width:100%; border-collapse:collapse; margin-top:8px; }
+th, td { padding:8px; border:1px solid #eee; text-align:left; }
+th { background:#fafafa; }
+tr.cheapest { background:#fff8e1; }

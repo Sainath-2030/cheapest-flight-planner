@@ -1,29 +1,75 @@
-<!-- templates/index.html -->
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>Flight Planner - Select Airports</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroPath | Intelligent Route Optimization</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
+
 <body>
-  <header class="topbar">
-    <h1>Flight Connection Planner</h1>
-    <p class="subtitle">Click a marker and press <strong>Select</strong>. First click → Source, second click → Destination.</p>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='images/aeropath_logo.png') }}" alt="AeroPath Logo" class="logo-img">
+      <div>
+        <h1 class="logo-text">AeroPath</h1>
+        <p class="logo-subtext">Intelligent Route Optimization</p>
+      </div>
+    </div>
+    <nav class="nav-icons">
+      <i class="fas fa-tachometer-alt" title="Dashboard"></i>
+      <i class="fas fa-user-circle" title="Account"></i>
+    </nav>
   </header>
 
-  <div id="mapid"></div>
+  <!-- MAIN SECTION -->
+  <main class="main-content">
+    <section class="input-section">
+      <h2>Plan Your Flight Route</h2>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+      <!-- Dropdown selection -->
+      <div class="dropdown-container">
+        <select id="source" class="dropdown">
+          <option value="">Select Source</option>
+        </select>
+        <select id="destination" class="dropdown">
+          <option value="">Select Destination</option>
+        </select>
+      </div>
 
-  <!-- make airports available to JS -->
- <script>
-  const airports = {{ airports | tojson }};
-</script>
+      <!-- Negative cycle toggle -->
+      <!-- <div class="toggle-container">
+        <label class="switch">
+          <input type="checkbox" id="demo_cycle">
+          <span class="slider"></span>
+        </label>
+        <span class="switch-label">Enable Negative Cycle Demo</span>
+      </div> -->
 
+      <button id="computeBtn" class="btn-primary">Compute Routes</button>
 
+      <p class="divider-text">or select directly on map</p>
+
+      <!-- Map display -->
+      <div id="map" class="map-container"></div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="social-links">
+      <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+    </div>
+    <p>© 2025 AeroPath — All rights reserved.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

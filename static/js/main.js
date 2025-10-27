@@ -1,66 +1,88 @@
-// static/js/main.js
-// This script receives `airports` variable injected into index.html by Flask.
+async function fetchAirports() {
+  const res = await fetch('/api/airports');
+  return await res.json();
+}
 
-(function () {
-  // ensure airports is defined
-  if (typeof airports === "undefined" || !Array.isArray(airports)) {
-    console.error("airports data not found on page.");
-    alert("Airports data not loaded. Reload page.");
-    return;
-  }
+let airportsGlobal = [];
+let map = null;
+let sourceSelect, destSelect;
 
-  const map = L.map('mapid').setView([20.5937, 78.9629], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+async function init() {
+  const airports = await fetchAirports();
+  airportsGlobal = airports;
+  sourceSelect = document.getElementById('source');
+  destSelect = document.getElementById('destination');
 
-  let selection = { source: null, dest: null };
-
-  // add markers and popup with Select button
   airports.forEach(a => {
-    const marker = L.marker([a.lat, a.lon]).addTo(map);
-    const popupHtml = `<div style="font-size:14px"><b>${a.name}</b><br/><em>${a.id}</em><br/><button onclick="selectAirport(${a.id})">Select</button></div>`;
-    marker.bindPopup(popupHtml);
+    const opt1 = document.createElement('option');
+    opt1.value = a.id;
+    opt1.text = a.name;
+    const opt2 = document.createElement('option');
+    opt2.value = a.id;
+    opt2.text = a.name;
+    sourceSelect.appendChild(opt1);
+    destSelect.appendChild(opt2);
   });
 
-  // expose selectAirport globally (popup button calls it)
-  window.selectAirport = function(id) {
-    const a = airports.find(x => x.id === id);
-    if (!a) {
-      alert("Airport not found");
+  initMap();
+  attachHandlers();
+}
+
+function initMap() {
+  map = L.map('map').setView([21.0, 78.0], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  airportsGlobal.forEach(a => {
+    const marker = L.marker([a.lat, a.lon]).addTo(map).bindPopup(a.name);
+    marker.on('click', () => {
+      const pick = confirm(`Set ${a.name} as SOURCE? (Cancel = DESTINATION)`);
+      if (pick) sourceSelect.value = a.id;
+      else destSelect.value = a.id;
+    });
+  });
+}
+
+function attachHandlers() {
+  document.getElementById('computeBtn').addEventListener('click', async () => {
+    const src = Number(sourceSelect.value);
+    const dst = Number(destSelect.value);
+    const demoCheckbox = document.getElementById('demo_cycle');
+    const demo = demoCheckbox ? demoCheckbox.checked : false;
+
+
+    if (isNaN(src) || isNaN(dst) || src === dst) {
+      alert('Please select different Source and Destination.');
       return;
     }
-    if (!selection.source) {
-      selection.source = a;
-      alert(`Source set: ${a.name}\nNow select destination`);
-    } else if (!selection.dest) {
-      if (selection.source.id === a.id) {
-        alert("Source and destination must be different");
-        return;
-      }
-      selection.dest = a;
-      alert(`Destination set: ${a.name}\nGenerating routes...`);
-      // send to backend to compute dynamic graph, BF, etc.
-      fetch('/api/compute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: selection.source.id, dest: selection.dest.id })
-      }).then(r => r.json()).then(resp => {
-        if (!resp) { alert("No response from server"); return; }
-        if (resp.status === 'ok' || resp.status === 'negcycle') {
-          // go to result page that loads the generated HTML map (saved under static_maps)
-          window.location.href = '/result?map=' + encodeURIComponent(resp.map_file);
-        } else {
-          alert("Error: " + (resp.message || "unknown"));
-        }
-      }).catch(err => {
-        console.error(err);
-        alert("Network/server error. See console.");
-      });
-    } else {
-      alert("Both source and destination already chosen. Reload page to restart.");
-    }
-  };
 
-})();
+    const payload = { source: src, destination: dst, demo_negcycle: demo };
+    const res = await fetch('/api/compute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error('Server error:', txt);
+      alert('Server error — check console.');
+      return;
+    }
+
+    const html = await res.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+    const neg = res.headers.get('X-Negative-Cycle');
+    if (neg === '1') {
+      setTimeout(() => alert('Demo note: Generated graph contains a negative-weight cycle.'), 400);
+    }
+  });
+}
+
+window.addEventListener('load', init);
